@@ -17,7 +17,9 @@ function setup() {
 
   camera.size(1080, 1080)
   camera.hide()
+}
 
+function draw() {
   background(0)
 
   image(camera, 0, 0, minSize, minSize)
@@ -35,7 +37,7 @@ function setup() {
   ]
 
   loadPixels()
-  
+
   let n = width * height
   let sobel_array = new Uint32Array(n)
 
