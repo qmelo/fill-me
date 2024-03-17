@@ -22,7 +22,7 @@ function setup() {
 function draw() {
   background(0)
 
-  image(camera, 0, 0, minSize, minSize)
+  image(camera.get(), 0, 0, minSize, minSize)
 
   let xKernel = [
     [-1, 0, 1],
