@@ -6,6 +6,15 @@ function setup() {
   createCanvas(windowWidth, windowHeight)
   pixelDensity(1)
 
+  camera = createCapture({
+    video: {
+      facingMode: "environment",
+    },
+    audio: false,
+  })
+
+  camera.hide()
+
   glsl = x => x[0]
 
   SOBEL = createFilterShader(glsl`
