@@ -6,8 +6,6 @@ function setup() {
   createCanvas(windowWidth, windowHeight)
   pixelDensity(1)
 
-  initCamera()
-
   glsl = x => x[0]
 
   SOBEL = createFilterShader(glsl`
