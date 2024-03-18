@@ -3,74 +3,55 @@ function preload() {
 }
 
 function setup() {
-  minSize = min(windowWidth, windowHeight)
-
-  createCanvas(minSize, minSize)
+  createCanvas(windowWidth, windowHeight)
   pixelDensity(1)
 
-  camera = createCapture({
-    video: {
-      facingMode: "environment",
-    },
-    audio: false,
-  })
+  initCamera()
 
-  camera.size(1080, 1080)
-  camera.hide()
+  glsl = x => x[0]
+
+  SOBEL = createFilterShader(glsl`
+  precision highp float;
+
+  varying vec2 vTexCoord;
+  uniform sampler2D tex0;
+
+  uniform vec2 texelSize;
+
+  void main() {
+    vec4 color = texture2D(tex0, vTexCoord);
+    vec3 i00 = texture2D(tex0, vTexCoord + texelSize * vec2(-1, -1)).rgb;
+    vec3 i01 = texture2D(tex0, vTexCoord + texelSize * vec2(-1,  0)).rgb;
+    vec3 i02 = texture2D(tex0, vTexCoord + texelSize * vec2(-1,  1)).rgb;
+    vec3 i10 = texture2D(tex0, vTexCoord + texelSize * vec2( 0, -1)).rgb;
+    vec3 i12 = texture2D(tex0, vTexCoord + texelSize * vec2( 0,  1)).rgb;
+    vec3 i20 = texture2D(tex0, vTexCoord + texelSize * vec2( 1, -1)).rgb;
+    vec3 i21 = texture2D(tex0, vTexCoord + texelSize * vec2( 1,  0)).rgb;
+    vec3 i22 = texture2D(tex0, vTexCoord + texelSize * vec2( 1,  1)).rgb;
+    vec3 h = -i00 - 2.0 * i10 - i20 + i02 + 2.0 * i12 + i22;
+    vec3 v = -i00 - 2.0 * i01 - i02 + i20 + 2.0 * i21 + i22;
+    float mag = length(vec2(length(h), length(v)));
+    gl_FragColor = vec4(vec3(1.0 - mag), 1.0);
+  }
+  `)
 }
 
 function draw() {
   background(0)
 
-  image(camera.get(), 0, 0, minSize, minSize)
+  widthRatio = width / camera.width
+  heightRatio = height / camera.height
 
-  let xKernel = [
-    [-1, 0, 1],
-    [-1, 0, 1],
-    [-1, 0, 1]
-  ]
-
-  let yKernel = [
-    [-1, -1, -1],
-    [0, 0, 0],
-    [1, 1, 1]
-  ]
-
-  loadPixels()
-
-  let n = width * height
-  let sobel_array = new Uint32Array(n)
-
-  for (let x = 1; x < width - 1; x++) {
-    for (let y = 1; y < height - 1; y++) {
-      i = x + y * width
-      xGradient = 0
-      yGradient = 0
-      for (let xk = -1; xk <= 1; xk++) {
-        for (let yk = -1; yk <= 1; yk++) {
-          pixelValue = pixels[4 * ((x + xk) + (y + yk) * width)]
-          xGradient += pixelValue * xKernel[yk + 1][xk + 1]
-          yGradient += pixelValue * yKernel[yk + 1][xk + 1]
-        }
-      }
-      sobel_array[i] = Math.sqrt(
-        Math.pow(xGradient, 2) + Math.pow(yGradient, 2)
-      )
-    }
+  if (widthRatio < heightRatio) {
+    cameraSize = [camera.width * heightRatio, height]
+  } else {
+    cameraSize = [width, camera.height * widthRatio]
   }
 
-  for (x = 0; x < width; x++) {
-    for (y = 0; y < height; y++) {
-      i = x + y * width
-      pixels[4 * i] = sobel_array[i]
-      pixels[4 * i + 1] = sobel_array[i]
-      pixels[4 * i + 2] = sobel_array[i]
-    }
-  }
+  imageMode(CENTER)
+  image(camera.get(), width / 2, height / 2, cameraSize[0], cameraSize[1])
 
-  updatePixels()
+  filter(SOBEL)
 
-  filter(INVERT)
-
-  image(character, 0, 0, minSize, minSize)
+  image(character, width / 2, height / 2, height, height)
 }
