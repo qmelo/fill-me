@@ -41,6 +41,8 @@ function setup() {
     gl_FragColor = vec4(vec3(1.0 - mag), 1.0);
   }
   `)
+
+  img = null
 }
 
 function draw() {
@@ -68,12 +70,22 @@ function touchStarted() {
 }
 
 function mousePressed() {
-  screenShot()
+  if (mouseButton == LEFT) {
+    screenShot()
+  }
 }
 
 function screenShot() {
-  let canvas = document.getElementsByTagName("canvas")[0]
-  let data = canvas.toDataURL("image/png")
-  let newTab = window.open()
-  newTab.document.write("<img src='" + data + "'>")
+  if (img == null) {
+    let canvas = document.getElementsByTagName("canvas")[0]
+    let data = canvas.toDataURL("image/png")
+    if (data != null) {
+      img = createImg(data)
+      img.position(0, 0)
+      img.style("z-index", "1")
+    }
+  } else {
+    img.remove()
+    img = null
+  }
 }
