@@ -62,3 +62,18 @@ function draw() {
 
   image(character, width / 2, height / 2, height, height)
 }
+
+function touchStarted() {
+  screenShot()
+}
+
+function mousePressed() {
+  screenShot()
+}
+
+function screenShot() {
+  let canvas = document.getElementsByTagName("canvas")[0]
+  let data = canvas.toDataURL("image/png")
+  let newTab = window.open()
+  newTab.document.write("<img src='" + data + "'>")
+}
