@@ -43,6 +43,17 @@ function setup() {
   `)
 
   img = null
+
+  // 撮影用の丸いボタンを作成
+  button = createButton("")
+  button.position(width / 2 - 50, height - 150)
+  button.style("width", "100px")
+  button.style("height", "100px")
+  button.style("border-radius", "50%")
+  button.style("background-color", "transparent")
+  button.style("border", "3px solid rgba(0, 0, 0, 0.5)")
+  button.style("z-index", "2")
+  button.mousePressed(screenShot)
 }
 
 function draw() {
@@ -63,16 +74,6 @@ function draw() {
   filter(SOBEL)
 
   image(character, width / 2, height / 2, height, height)
-}
-
-function touchStarted() {
-  screenShot()
-}
-
-function mousePressed() {
-  if (mouseButton == LEFT) {
-    screenShot()
-  }
 }
 
 function screenShot() {
